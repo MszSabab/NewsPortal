@@ -10,9 +10,9 @@ import (
 func Init(router *gin.Engine) {
 	router.POST("portal", CreateNewsHandler)
 	router.GET("portal", GetAllNewsHandler)
-	// router.GET("todo/:id", GetOneTodoHandler)
-	// router.DELETE("todo/:id", DeleteOneTodoHandler)
-	// router.PUT("todo/:id", UpdateTodoHandler)
+	router.GET("portal/:id", GetSingleNewsHandler)
+	router.DELETE("portal/:id", DeleteNewsHandler)
+	router.PUT("portal/:id", UpdateNewsHandler)
 
 }
 
@@ -34,7 +34,7 @@ func CreateNewsHandler(c *gin.Context) {
 	if err := c.BindJSON(&req.Newses); err != nil {
 		c.JSON(http.StatusInternalServerError, CreateNewsResponse{
 			Newses: NewsPortal{},
-			Err:    "",
+			Err:    "Error in data binding",
 		})
 		return
 	}
@@ -83,4 +83,96 @@ func GetAllNewsHandler(c *gin.Context) {
 
 }
 
-//	portalID := c.Param("id")
+//GetSingleNewsResponse ----
+type GetSingleNewsResponse struct {
+	Newses NewsPortal `json:"newses"`
+	Err    string     `json:"err"`
+}
+
+//GetSingleNewsHandler ----
+func GetSingleNewsHandler(c *gin.Context) {
+	portalID := c.Param("id")
+	getSingleNews, err := GetSingleNewsCrud(portalID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, GetSingleNewsResponse{
+			Newses: NewsPortal{},
+			Err:    err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, GetSingleNewsResponse{
+		Newses: getSingleNews,
+		Err:    "",
+	})
+	return
+}
+
+//DeleteNewsResponse ----
+type DeleteNewsResponse struct {
+	Err string `json:"err"`
+}
+
+//DeleteNewsHandler ----
+func DeleteNewsHandler(c *gin.Context) {
+	portalID := c.Param("id")
+	err := DeleteNewsCrud(portalID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, DeleteNewsResponse{
+
+			Err: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, DeleteNewsResponse{
+
+		Err: "",
+	})
+	return
+
+}
+
+//UpdateNewsRequest ----
+type UpdateNewsRequest struct {
+	Newses NewsPortal
+}
+
+//UpdateNewsResponse ----
+type UpdateNewsResponse struct {
+	Newses NewsPortal `json:"newses"`
+	Err    string     `json:"err"`
+}
+
+//UpdateNewsHandler ----
+func UpdateNewsHandler(c *gin.Context) {
+
+	var req UpdateNewsRequest
+	portalID := c.Param("id")
+	// fmt.Println("Context========>", c)
+	if err := c.ShouldBindJSON(&req.Newses); err != nil {
+		c.JSON(http.StatusInternalServerError, UpdateNewsResponse{
+			Newses: NewsPortal{},
+			Err:    "Error in data binding",
+		})
+		return
+	}
+	// fmt.Println("Handler==>", req.TodoList)
+	updateNews, err := UpdateNewsCrud(portalID, req.Newses)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, UpdateNewsResponse{
+			Newses: NewsPortal{},
+			Err:    err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, UpdateNewsResponse{
+		Newses: updateNews,
+		Err:    "",
+	})
+	return
+
+}

@@ -50,6 +50,61 @@ func GetAllNewsCrud() ([]NewsPortal, error) {
 	return portal, nil
 }
 
+//GetSingleNewsCrud ----
+func GetSingleNewsCrud(portalID string) (NewsPortal, error) {
+	var portal NewsPortal
+	session, err := newDBSession()
+	if err != nil {
+		return NewsPortal{}, nil
+	}
+	coll := session.DB("NewsPortal").C("NP-table")
+	err = coll.Find(bson.M{"_id": portalID}).One(&portal)
+
+	if err != nil {
+		return NewsPortal{}, nil
+	}
+
+	return portal, nil
+}
+
+//DeleteNewsCrud ----
+func DeleteNewsCrud(portalID string) error {
+
+	session, err := newDBSession()
+	if err != nil {
+		return nil
+	}
+	coll := session.DB("NewsPortal").C("NP-table")
+	err = coll.Remove(bson.M{"_id": portalID})
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//UpdateNewsCrud ----
+func UpdateNewsCrud(portalID string, portal NewsPortal) (NewsPortal, error) {
+
+	session, err := newDBSession()
+	if err != nil {
+		return NewsPortal{}, nil
+	}
+	portal.ID = portalID
+	coll := session.DB("NewsPortal").C("NP-table")
+	selector := bson.M{"_id": portalID}
+	err = coll.Update(selector, bson.M{"$set": portal})
+	if err != nil {
+		return NewsPortal{}, err
+	}
+	Updated, err := GetSingleNewsCrud(portalID)
+	if err != nil {
+		return NewsPortal{}, err
+	}
+	// fmt.Println("Updated===>", Updated)
+	return Updated, nil
+
+}
 func generateUUID() string {
 	return uuid.New().String()
 }
