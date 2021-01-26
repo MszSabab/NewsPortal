@@ -151,7 +151,6 @@ func UpdateNewsHandler(c *gin.Context) {
 
 	var req UpdateNewsRequest
 	portalID := c.Param("id")
-	// fmt.Println("Context========>", c)
 	if err := c.ShouldBindJSON(&req.Newses); err != nil {
 		c.JSON(http.StatusInternalServerError, UpdateNewsResponse{
 			Newses: NewsPortal{},
@@ -159,7 +158,6 @@ func UpdateNewsHandler(c *gin.Context) {
 		})
 		return
 	}
-	// fmt.Println("Handler==>", req.TodoList)
 	updateNews, err := UpdateNewsCrud(portalID, req.Newses)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, UpdateNewsResponse{

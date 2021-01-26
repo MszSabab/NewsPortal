@@ -101,7 +101,6 @@ func UpdateNewsCrud(portalID string, portal NewsPortal) (NewsPortal, error) {
 	if err != nil {
 		return NewsPortal{}, err
 	}
-	// fmt.Println("Updated===>", Updated)
 	return Updated, nil
 
 }
